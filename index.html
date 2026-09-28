@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>JSON Editor</title>
+<style>
+:root{font-family:Inter,Segoe UI,Arial,sans-serif;color:#172033;background:#f3f5f9}
+*{box-sizing:border-box}body{margin:0}.app{max-width:1200px;margin:auto;padding:24px}
+header{display:flex;justify-content:space-between;align-items:center;gap:16px;margin-bottom:18px;flex-wrap:wrap}
+h1{font-size:24px;margin:0 0 5px}.sub{color:#64748b;font-size:13px}
+.toolbar,.panel{background:#fff;border:1px solid #e1e6ef;border-radius:12px;padding:14px}
+.toolbar{display:flex;gap:9px;align-items:center;flex-wrap:wrap;margin-bottom:14px}
+button,.filebtn{border:0;border-radius:8px;padding:10px 14px;background:#2563eb;color:#fff;font-weight:600;cursor:pointer;font-size:13px}
+button.secondary,.filebtn.secondary{background:#e9eef7;color:#263449}button.green{background:#16834a}button.red{background:#b42318}
+button:hover,.filebtn:hover{filter:brightness(.96)}input[type=file]{display:none}
+.search{margin-left:auto;min-width:190px;flex:1;max-width:300px;border:1px solid #d5dce8;border-radius:8px;padding:10px 12px;font-size:13px}
+.status{font-size:13px;color:#64748b;padding:4px 2px;min-height:24px}.status.ok{color:#16834a}.status.err{color:#b42318}
+.layout{display:grid;grid-template-columns:minmax(0,1fr) 280px;gap:14px}
+.panel h2{font-size:14px;margin:0 0 12px}.editor{width:100%;height:68vh;min-height:420px;resize:vertical;border:1px solid #dbe2ec;border-radius:8px;padding:15px;background:#101827;color:#e5edf8;font:13px/1.6 Consolas,Monaco,monospace;tab-size:2;white-space:pre;outline:none}
+.editor:focus{border-color:#6597f5;box-shadow:0 0 0 3px #2563eb18}
+.info{font-size:13px;color:#526176;line-height:1.7}.info strong{color:#172033}.tip{background:#f0f6ff;border:1px solid #d9e8ff;padding:11px;border-radius:8px;font-size:12px;line-height:1.6;color:#35537c;margin-top:12px}
+#fileName{font-weight:600;color:#334155;max-width:260px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+@media(max-width:800px){.app{padding:12px}.layout{grid-template-columns:1fr}.editor{height:58vh;min-height:350px}.search{max-width:none;margin-left:0;flex-basis:100%}}
+</style>
+</head>
+<body>
+<div class="app">
+<header><div><h1>JSON Editor</h1><div class="sub">Mở, chỉnh sửa, kiểm tra và lưu file JSON ngay trên trình duyệt</div></div><div id="fileName">Chưa mở file</div></header>
+<div class="toolbar">
+<label class="filebtn" for="fileInput">Mở file JSON</label><input id="fileInput" type="file" accept=".json,application/json">
+<button class="secondary" id="formatBtn">Định dạng</button>
+<button class="secondary" id="minifyBtn">Thu gọn</button>
+<button class="secondary" id="validateBtn">Kiểm tra JSON</button>
+<button class="green" id="saveBtn">Lưu thành file JSON</button>
+<input class="search" id="searchInput" type="search" placeholder="Tìm trong nội dung...">
+</div>
+<div id="status" class="status">Chọn “Mở file JSON” hoặc dán JSON vào vùng soạn thảo.</div>
+<div class="layout">
+<section class="panel"><h2>Nội dung JSON</h2><textarea id="editor" class="editor" spellcheck="false" aria-label="Nội dung JSON" placeholder='{"ten": "Gia tri", "mang": []}'></textarea></section>
+<aside class="panel"><h2>Thông tin file</h2><div class="info">
+<div>Tên file: <strong id="infoName">—</strong></div>
+<div>Kích thước: <strong id="infoSize">0 KB</strong></div>
+<div>Số dòng: <strong id="infoLines">0</strong></div>
+<div>Trạng thái: <strong id="infoState">Chưa kiểm tra</strong></div>
+</div>
+<div class="tip"><strong>Cách sử dụng</strong><br>1. Mở file JSON từ máy tính.<br>2. Chỉnh sửa trực tiếp nội dung trong khung bên trái.<br>3. Nhấn “Kiểm tra JSON” để phát hiện lỗi cú pháp.<br>4. Nhấn “Lưu thành file JSON” để tải file đã sửa về máy.</div>
+<div class="tip">Ứng dụng xử lý dữ liệu ngay trong trình duyệt, không tự gửi nội dung file lên máy chủ.</div>
+</aside>
+</div>
+</div>
+<script>
+const editor=document.getElementById('editor'), input=document.getElementById('fileInput'), statusEl=document.getElementById('status');
+let currentName='data.json';
+function setStatus(message,type=''){statusEl.textContent=message;statusEl.className='status '+type}
+function updateInfo(){document.getElementById('infoName').textContent=currentName;document.getElementById('infoSize').textContent=(new Blob([editor.value]).size/1024).toFixed(2)+' KB';document.getElementById('infoLines').textContent=editor.value?editor.value.split('\n').length:0}
+function validate(show=true){try{JSON.parse(editor.value);document.getElementById('infoState').textContent='Hợp lệ';if(show)setStatus('JSON hợp lệ. Bạn có thể lưu file.','ok');return true}catch(e){document.getElementById('infoState').textContent='Có lỗi';if(show)setStatus('Lỗi JSON: '+e.message,'err');return false}}
+input.addEventListener('change',async()=>{const file=input.files[0];if(!file)return;try{editor.value=await file.text();currentName=file.name;document.getElementById('fileName').textContent=file.name;updateInfo();validate(false);setStatus('Đã mở '+file.name+'. Hãy chỉnh sửa nội dung nếu cần.','ok')}catch(e){setStatus('Không thể đọc file: '+e.message,'err')}input.value=''});
+document.getElementById('formatBtn').onclick=()=>{try{editor.value=JSON.stringify(JSON.parse(editor.value),null,2);updateInfo();validate(false);setStatus('Đã định dạng JSON.','ok')}catch(e){validate()}};
+document.getElementById('minifyBtn').onclick=()=>{try{editor.value=JSON.stringify(JSON.parse(editor.value));updateInfo();validate(false);setStatus('Đã thu gọn JSON.','ok')}catch(e){validate()}};
+document.getElementById('validateBtn').onclick=()=>validate();
+document.getElementById('saveBtn').onclick=()=>{if(!validate())return;const blob=new Blob([editor.value],{type:'application/json;charset=utf-8'});const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download=currentName.toLowerCase().endsWith('.json')?currentName:currentName+'.json';document.body.appendChild(a);a.click();a.remove();URL.revokeObjectURL(url);setStatus('Đã tạo file JSON để tải xuống.','ok')};
+editor.addEventListener('input',()=>{updateInfo();document.getElementById('infoState').textContent='Chưa kiểm tra'});
+document.getElementById('searchInput').addEventListener('input',e=>{const q=e.target.value;if(!q){setStatus('Đã xóa từ khóa tìm kiếm.');return}const i=editor.value.toLowerCase().indexOf(q.toLowerCase());if(i<0){setStatus('Không tìm thấy: '+q);return}editor.focus();editor.setSelectionRange(i,i+q.length);const before=editor.value.slice(0,i);const line=before.split('\n').length;setStatus('Tìm thấy tại dòng '+line+'.','ok')});
+editor.addEventListener('keydown',e=>{if(e.key==='Tab'){e.preventDefault();const s=editor.selectionStart,end=editor.selectionEnd;editor.setRangeText('  ',s,end,'end');editor.dispatchEvent(new Event('input'))}if((e.ctrlKey||e.metaKey)&&e.key.toLowerCase()==='s'){e.preventDefault();document.getElementById('saveBtn').click()}});
+updateInfo();
+</script>
+</body>
+</html>
