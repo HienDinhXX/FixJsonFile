@@ -30,12 +30,29 @@ h1{font-size:23px;margin:0 0 4px}.sub{font-size:13px;color:#64748b}
 .office-subtab:focus-visible{outline:2px solid #2563eb;outline-offset:2px}
 
 .hidden{display:none!important}
+.qr-panel{max-width:760px;margin:0 auto}
+.qr-form{display:grid;grid-template-columns:minmax(0,1fr) 160px auto;gap:10px;align-items:end}
+.qr-field{display:flex;flex-direction:column;gap:6px}
+.qr-field label{font-size:13px;font-weight:600;color:#334155}
+.qr-field input,.qr-field select{width:100%;border:1px solid #d5dce8;border-radius:8px;padding:10px 12px;font-size:13px;background:#fff}
+.qr-result{margin-top:14px;min-height:260px;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:12px;background:#fff;border:1px solid #e1e6ef;border-radius:12px;padding:24px}
+.qr-result-title{font-size:14px;font-weight:600;color:#334155}
+#qrCanvasWrap{display:flex;align-items:center;justify-content:center;min-height:190px;width:100%;overflow:auto}
+#qrCanvasWrap canvas,#qrCanvasWrap img{max-width:100%}
+#barcodeSvg{max-width:100%;height:auto}
+.qr-empty{color:#64748b;font-size:13px;text-align:center}
+@media(max-width:700px){.qr-form{grid-template-columns:1fr}.qr-form button{width:100%}}
+
 .toolbar,.panel{background:white;border:1px solid #e1e6ef;border-radius:12px;padding:13px}.toolbar{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:12px}button,.filebtn{border:0;border-radius:8px;padding:10px 13px;background:#2563eb;color:#fff;font-weight:600;cursor:pointer;font-size:13px}button.secondary,.filebtn.secondary{background:#e9eef7;color:#263449}button.green{background:#16834a}button:hover,.filebtn:hover{filter:brightness(.96)}input[type=file]{display:none}.search{margin-left:auto;min-width:180px;flex:1;max-width:300px;border:1px solid #d5dce8;border-radius:8px;padding:10px 12px;font-size:13px}.status{font-size:13px;color:#64748b;padding:4px 2px;min-height:24px}.status.ok{color:#16834a}.status.err{color:#b42318}.layout{display:grid;grid-template-columns:minmax(0,1fr) 280px;gap:13px}.panel h2{font-size:14px;margin:0 0 11px}.editor{width:100%;height:65vh;min-height:390px;resize:vertical;border:1px solid #dbe2ec;border-radius:8px;padding:14px;background:#101827;color:#e5edf8;font:13px/1.6 Consolas,monospace;tab-size:2;white-space:pre;outline:none}.editor:focus{border-color:#6597f5}.info{font-size:13px;color:#526176;line-height:1.8}.info strong{color:#172033}.tip{background:#f0f6ff;border:1px solid #d9e8ff;padding:10px;border-radius:8px;font-size:12px;line-height:1.6;color:#35537c;margin-top:11px}#fileName{font-weight:600;color:#334155;max-width:300px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.html-layout{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:12px}.html-layout .editor{height:65vh}.preview{width:100%;height:65vh;min-height:390px;border:1px solid #dbe2ec;border-radius:8px;background:white}.hidden{display:none!important}@media(max-width:850px){body{padding-top:60px}.app{padding:12px}.layout,.html-layout{grid-template-columns:1fr}.editor,.html-layout .editor,.preview{height:52vh;min-height:300px}.search{max-width:none;margin-left:0;flex-basis:100%}}
 </style>
 </head>
 <body><div class="app">
 <div class="tab-bar" role="tablist" aria-label="Các loại file">
-  <button class="tab-item active" id="jsonTab" role="tab" aria-selected="true">
+  <button class="tab-item active" id="qrTab" role="tab" aria-selected="true">
+    <span class="icon">▦</span><span>QR</span>
+  </button>
+  <div class="tab-divider"></div>
+  <button class="tab-item" id="jsonTab" role="tab" aria-selected="false">
     <span class="icon">🧩</span><span>JSON</span>
   </button>
   <div class="tab-divider"></div>
@@ -54,13 +71,38 @@ h1{font-size:23px;margin:0 0 4px}.sub{font-size:13px;color:#64748b}
 
 <div class="app">
 <header>
-  <div>
-    <h1>File Editor</h1>
-    <div class="sub">Mở, chỉnh sửa, xem trước và lưu file ngay trên trình duyệt</div>
-  </div>
   <div id="fileName">Chưa mở file</div>
 </header>
 
+
+<section id="qrSection">
+  <div class="panel qr-panel">
+    <h2>Tạo mã QR</h2>
+    <div class="qr-form">
+      <div class="qr-field">
+        <label for="qrText">Văn bản</label>
+        <input id="qrText" type="text" placeholder="Nhập văn bản, URL, mã sản phẩm..." autocomplete="off">
+      </div>
+      <div class="qr-field">
+        <label for="qrType">Type</label>
+        <select id="qrType">
+          <option value="qr">QR Code</option>
+          <option value="barcode">Bar Code</option>
+        </select>
+      </div>
+      <button id="generateCodeBtn" type="button">Tạo mã</button>
+    </div>
+
+    <div class="qr-result">
+      <div class="qr-result-title" id="qrResultTitle">Mã đã tạo sẽ hiển thị ở đây</div>
+      <div id="qrCanvasWrap">
+        <div class="qr-empty" id="qrEmpty">Nhập nội dung và nhấn “Tạo mã”.</div>
+        <div id="qrCodeBox" class="hidden"></div>
+        <svg id="barcodeSvg" class="hidden" aria-label="Bar Code"></svg>
+      </div>
+    </div>
+  </div>
+</section>
 <section id="jsonSection"><div class="toolbar"><label class="filebtn" for="jsonInput">Mở file JSON</label><input id="jsonInput" type="file" accept=".json,application/json"><button class="secondary" id="formatBtn">Định dạng</button><button class="secondary" id="minifyBtn">Thu gọn</button><button class="secondary" id="validateBtn">Kiểm tra JSON</button><button class="green" id="saveJsonBtn">Lưu JSON</button><input class="search" id="jsonSearch" type="search" placeholder="Tìm trong JSON..."></div>
 <div class="layout"><section class="panel"><h2>Nội dung JSON</h2><textarea id="jsonEditor" class="editor" spellcheck="false" placeholder='{"ten":"Gia tri"}'></textarea></section><aside class="panel"><h2>Thông tin file</h2><div class="info">Tên file: <strong id="jsonName">—</strong><br>Kích thước: <strong id="jsonSize">0 KB</strong><br>Số dòng: <strong id="jsonLines">0</strong><br>Trạng thái: <strong id="jsonState">Chưa kiểm tra</strong></div><div class="tip">Mở file, chỉnh sửa trực tiếp, kiểm tra cú pháp rồi lưu thành JSON.</div><div class="tip">Dữ liệu được xử lý trong trình duyệt, không tự gửi lên máy chủ.</div></aside></div></section>
 <section id="htmlSection" class="hidden"><div class="toolbar"><label class="filebtn" for="htmlInput">Mở file HTML</label><input id="htmlInput" type="file" accept=".html,.htm,text/html"><button class="secondary" id="formatHtmlBtn">Định dạng HTML</button><button class="secondary" id="minifyHtmlBtn">Thu gọn HTML</button><button class="secondary" id="previewBtn">Cập nhật xem trước</button><button class="green" id="saveHtmlBtn">Lưu HTML</button><input class="search" id="htmlSearch" type="search" placeholder="Tìm trong HTML..."></div>
@@ -89,11 +131,13 @@ h1{font-size:23px;margin:0 0 4px}.sub{font-size:13px;color:#64748b}
 </style>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.8.0/mammoth.browser.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.6/dist/JsBarcode.all.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
 <script>
 const $=id=>document.getElementById(id);
-let activeMain='json', activeOffice='word', jsonName='data.json', htmlName='index.html', txtName='data.txt';
+let activeMain='qr', activeOffice='word', jsonName='data.json', htmlName='index.html', txtName='data.txt';
 let wordFile='Chưa mở file', excelFile='Chưa mở file', pptFile='Chưa mở file';
 let sheets={}, workbook=null, slides=[], slideIndex=0;
 
@@ -109,15 +153,15 @@ function download(content,name,type){
 }
 function switchTab(which){
   activeMain=which;
-  const names=['json','html','office','txt'];
+  const names=['qr','json','html','office','txt'];
   names.forEach(n=>{
     const isActive=n===which;
     $(n+'Section').classList.toggle('hidden',!isActive);
     $(n+'Tab').classList.toggle('active',isActive);
     $(n+'Tab').setAttribute('aria-selected',String(isActive));
   });
-  const namesMap={json:'JSON',html:'HTML',office:'Office',txt:'TXT'};
-  const files={json:jsonName,html:htmlName,office:({word:wordFile,excel:excelFile,ppt:pptFile}[activeOffice]||'Office'),txt:txtName};
+  const namesMap={qr:'QR',json:'JSON',html:'HTML',office:'Office',txt:'TXT'};
+  const files={qr:'QR',json:jsonName,html:htmlName,office:({word:wordFile,excel:excelFile,ppt:pptFile}[activeOffice]||'Office'),txt:txtName};
   $('fileName').textContent=files[which]||'Chưa mở file';
   status('Đang ở tab '+namesMap[which]+'.');
   if(which==='office') switchOfficeTab(activeOffice,false);
@@ -135,7 +179,7 @@ function switchOfficeTab(which,showStatus=true){
   $('fileName').textContent=files[which]||'Chưa mở file';
   if(showStatus) status('Đang ở Office → '+({word:'Word',excel:'Excel',ppt:'PowerPoint'}[which])+'.');
 }
-['json','html','office','txt'].forEach(n=>{
+['qr','json','html','office','txt'].forEach(n=>{
   $(n+'Tab').onclick=()=>switchTab(n);
 });
 ['word','excel','ppt'].forEach(n=>{
@@ -143,6 +187,74 @@ function switchOfficeTab(which,showStatus=true){
     switchOfficeTab(n);
     if(activeMain!=='office') switchTab('office');
   };
+});
+
+
+// QR / BARCODE
+function clearGeneratedCode(){
+  $('qrEmpty').classList.remove('hidden');
+  $('qrCodeBox').classList.add('hidden');
+  $('qrCodeBox').innerHTML='';
+  $('barcodeSvg').classList.add('hidden');
+  $('barcodeSvg').innerHTML='';
+}
+
+$('generateCodeBtn').onclick=()=>{
+  const text=$('qrText').value.trim();
+  const type=$('qrType').value;
+  if(!text){
+    status('Vui lòng nhập văn bản hoặc nội dung cần tạo mã.','err');
+    $('qrText').focus();
+    return;
+  }
+
+  clearGeneratedCode();
+  $('qrEmpty').classList.add('hidden');
+
+  try{
+    if(type==='qr'){
+      if(!window.QRCode) throw Error('Không tải được thư viện QR Code. Hãy kết nối Internet và tải lại trang.');
+      $('qrCodeBox').classList.remove('hidden');
+      new QRCode($('qrCodeBox'),{
+        text:text,
+        width:220,
+        height:220,
+        colorDark:'#000000',
+        colorLight:'#ffffff',
+        correctLevel:QRCode.CorrectLevel.M
+      });
+      $('qrResultTitle').textContent='QR Code';
+      status('Đã tạo QR Code.','ok');
+    }else{
+      if(!window.JsBarcode) throw Error('Không tải được thư viện Bar Code. Hãy kết nối Internet và tải lại trang.');
+      $('barcodeSvg').classList.remove('hidden');
+      JsBarcode('#barcodeSvg',text,{
+        format:'CODE128',
+        lineColor:'#000000',
+        background:'#ffffff',
+        width:2,
+        height:100,
+        displayValue:true,
+        margin:12
+      });
+      $('qrResultTitle').textContent='Bar Code';
+      status('Đã tạo Bar Code.','ok');
+    }
+  }catch(err){
+    clearGeneratedCode();
+    status('Không thể tạo mã: '+err.message,'err');
+  }
+};
+
+$('qrType').onchange=()=>{
+  if($('qrText').value.trim()) $('generateCodeBtn').click();
+};
+
+$('qrText').addEventListener('keydown',e=>{
+  if(e.key==='Enter'){
+    e.preventDefault();
+    $('generateCodeBtn').click();
+  }
 });
 
 const je=$('jsonEditor'), he=$('htmlEditor'), te=$('txtEditor');
@@ -433,6 +545,7 @@ function escapeHtml(s){
 }));
 switchOfficeTab('word',false);
 jsonInfo();
+switchTab('qr');
 </script>
 
 </body></html>
