@@ -1,8 +1,14 @@
 <!DOCTYPE html>
-<html lang="vi"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>JSON & HTML Editor</title>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>JSON & HTML Editor</title>
 <style>
 :root{font-family:Segoe UI,Arial,sans-serif;color:#172033;background:#f3f5f9}*{box-sizing:border-box}body{margin:0}.app{max-width:1300px;margin:auto;padding:22px}header{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:16px}h1{font-size:23px;margin:0 0 4px}.sub{font-size:13px;color:#64748b}.tabs{display:flex;gap:8px;margin-bottom:12px}.tab{background:#e7ebf3;color:#344256}.tab.active{background:#2563eb;color:white}.toolbar,.panel{background:white;border:1px solid #e1e6ef;border-radius:12px;padding:13px}.toolbar{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:12px}button,.filebtn{border:0;border-radius:8px;padding:10px 13px;background:#2563eb;color:#fff;font-weight:600;cursor:pointer;font-size:13px}button.secondary,.filebtn.secondary{background:#e9eef7;color:#263449}button.green{background:#16834a}button:hover,.filebtn:hover{filter:brightness(.96)}input[type=file]{display:none}.search{margin-left:auto;min-width:180px;flex:1;max-width:300px;border:1px solid #d5dce8;border-radius:8px;padding:10px 12px;font-size:13px}.status{font-size:13px;color:#64748b;padding:4px 2px;min-height:24px}.status.ok{color:#16834a}.status.err{color:#b42318}.layout{display:grid;grid-template-columns:minmax(0,1fr) 280px;gap:13px}.panel h2{font-size:14px;margin:0 0 11px}.editor{width:100%;height:65vh;min-height:390px;resize:vertical;border:1px solid #dbe2ec;border-radius:8px;padding:14px;background:#101827;color:#e5edf8;font:13px/1.6 Consolas,monospace;tab-size:2;white-space:pre;outline:none}.editor:focus{border-color:#6597f5}.info{font-size:13px;color:#526176;line-height:1.8}.info strong{color:#172033}.tip{background:#f0f6ff;border:1px solid #d9e8ff;padding:10px;border-radius:8px;font-size:12px;line-height:1.6;color:#35537c;margin-top:11px}#fileName{font-weight:600;color:#334155;max-width:300px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.html-layout{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:12px}.html-layout .editor{height:65vh}.preview{width:100%;height:65vh;min-height:390px;border:1px solid #dbe2ec;border-radius:8px;background:white}.hidden{display:none!important}@media(max-width:850px){.app{padding:12px}.layout,.html-layout{grid-template-columns:1fr}.editor,.html-layout .editor,.preview{height:52vh;min-height:300px}.search{max-width:none;margin-left:0;flex-basis:100%}}
-</style></head><body><div class="app">
+</style>
+</head>
+<body><div class="app">
 <header><div><h1>JSON Editor</h1><div class="sub">Mở, chỉnh sửa, xem trước và lưu file ngay trên trình duyệt</div></div><div id="fileName">Chưa mở file</div></header>
 <div class="tabs"><button class="tab active" id="jsonTab">JSON</button><button class="tab" id="htmlTab">HTML</button><button class="tab" id="wordTab">Word</button><button class="tab" id="excelTab">Excel</button><button class="tab" id="pptTab">PowerPoint</button><button class="tab" id="txtTab">TXT</button></div>
 <section id="jsonSection"><div class="toolbar"><label class="filebtn" for="jsonInput">Mở file JSON</label><input id="jsonInput" type="file" accept=".json,application/json"><button class="secondary" id="formatBtn">Định dạng</button><button class="secondary" id="minifyBtn">Thu gọn</button><button class="secondary" id="validateBtn">Kiểm tra JSON</button><button class="green" id="saveJsonBtn">Lưu JSON</button><input class="search" id="jsonSearch" type="search" placeholder="Tìm trong JSON..."></div>
@@ -11,85 +17,339 @@
 <div class="html-layout"><section class="panel"><h2>Mã nguồn HTML</h2><textarea id="htmlEditor" class="editor" spellcheck="false" placeholder="<!doctype html>..."></textarea></section><section class="panel"><h2>Xem trước giao diện</h2><iframe id="preview" class="preview" sandbox="allow-scripts" title="Xem trước HTML"></iframe></section></div>
 <div class="tip">Bản xem trước chạy trong khung cách ly. Một số chức năng phụ thuộc file bên ngoài (CSS, JavaScript, ảnh) hoặc quyền trình duyệt có thể không hoạt động như khi mở trang thật.</div></section>
 
-<section id="wordSection" class="hidden"><div class="toolbar"><label class="filebtn" for="wordInput">Mở file Word</label><input id="wordInput" type="file" accept=".docx"><button class="secondary" id="wordClear">Xóa nội dung</button></div><div class="panel"><h2>Nội dung Word</h2><div id="wordOutput" class="docout">Chọn file .docx để đọc nội dung.</div></div></section>
-<section id="excelSection" class="hidden"><div class="toolbar"><label class="filebtn" for="excelInput">Mở file Excel</label><input id="excelInput" type="file" accept=".xlsx,.xls,.xlsm,.csv"><label for="sheetSelect" style="font-size:13px">Trang tính:</label><select id="sheetSelect" style="padding:9px;border:1px solid #d5dce8;border-radius:8px;min-width:150px" disabled><option>Chưa có dữ liệu</option></select><button class="secondary" id="excelClear">Xóa nội dung</button></div><div class="panel"><h2>Dữ liệu Excel</h2><div id="excelOutput" class="tablewrap">Chọn file Excel để đọc dữ liệu.</div></div></section>
-<section id="txtSection" class="hidden"><div class="toolbar"><label class="filebtn" for="txtInput">Mở file TXT</label><input id="txtInput" type="file" accept=".txt,text/plain"><button class="secondary" id="txtClear">Xóa nội dung</button><button class="green" id="saveTxtBtn">Lưu TXT</button><input class="search" id="txtSearch" type="search" placeholder="Tìm trong TXT..."></div><div class="panel"><h2>Nội dung văn bản TXT</h2><textarea id="txtEditor" class="editor" spellcheck="false" placeholder="Nội dung file .txt..."></textarea><div class="info">Có thể đọc, chỉnh sửa trực tiếp và lưu lại thành file TXT.</div></div></section>\n<section id="pptSection" class="hidden"><div class="toolbar"><label class="filebtn" for="pptInput">Mở file PowerPoint</label><input id="pptInput" type="file" accept=".pptx"><button class="secondary" id="prevSlide" disabled>Trang trước</button><span id="slideCount" style="font-size:13px;color:#526176">Chưa có trang chiếu</span><button class="secondary" id="nextSlide" disabled>Trang tiếp</button><button class="secondary" id="pptClear">Xóa nội dung</button></div><div class="panel"><h2 id="slideTitle">Nội dung trang chiếu</h2><div id="pptOutput" class="docout">Chọn file .pptx để đọc văn bản trên các trang chiếu.</div></div></section>
+<section id="wordSection" class="hidden"><div class="toolbar"><label class="filebtn" for="wordInput">Mở file Word</label><input id="wordInput" type="file" accept=".docx"><button class="secondary" id="wordClear">Xóa nội dung</button><button class="green" id="saveWordBtn">Lưu HTML</button></div><div class="panel"><h2>Nội dung Word</h2><div id="wordOutput" class="docout" contenteditable="true">Chọn file .docx để đọc nội dung.</div></div></section>
+<section id="excelSection" class="hidden"><div class="toolbar"><label class="filebtn" for="excelInput">Mở file Excel</label><input id="excelInput" type="file" accept=".xlsx,.xls,.xlsm,.csv"><label for="sheetSelect" style="font-size:13px">Trang tính:</label><select id="sheetSelect" style="padding:9px;border:1px solid #d5dce8;border-radius:8px;min-width:150px" disabled><option>Chưa có dữ liệu</option></select><button class="secondary" id="excelClear">Xóa nội dung</button><button class="green" id="saveExcelBtn">Lưu Excel</button></div><div class="panel"><h2>Dữ liệu Excel</h2><div id="excelOutput" class="tablewrap">Chọn file Excel để đọc dữ liệu.</div></div></section>
+<section id="txtSection" class="hidden"><div class="toolbar"><label class="filebtn" for="txtInput">Mở file TXT</label><input id="txtInput" type="file" accept=".txt,text/plain"><button class="secondary" id="txtClear">Xóa nội dung</button><button class="green" id="saveTxtBtn">Lưu TXT</button><input class="search" id="txtSearch" type="search" placeholder="Tìm trong TXT..."></div><div class="panel"><h2>Nội dung văn bản TXT</h2><textarea id="txtEditor" class="editor" spellcheck="false" placeholder="Nội dung file .txt..."></textarea><div class="info">Có thể đọc, chỉnh sửa trực tiếp và lưu lại thành file TXT.</div></div></section>\n<section id="pptSection" class="hidden"><div class="toolbar"><label class="filebtn" for="pptInput">Mở file PowerPoint</label><input id="pptInput" type="file" accept=".pptx"><button class="secondary" id="prevSlide" disabled>Trang trước</button><span id="slideCount" style="font-size:13px;color:#526176">Chưa có trang chiếu</span><button class="secondary" id="nextSlide" disabled>Trang tiếp</button><button class="secondary" id="pptClear">Xóa nội dung</button><button class="green" id="savePptBtn">Lưu TXT</button></div><div class="panel"><h2 id="slideTitle">Nội dung trang chiếu</h2><div id="pptOutput" class="docout" contenteditable="true">Chọn file .pptx để đọc văn bản trên các trang chiếu.</div></div></section>
 <div id="status" class="status">Chọn tab JSON hoặc HTML để bắt đầu.</div></div>
+
 <style>
-.docout{min-height:260px;max-height:70vh;overflow:auto;padding:18px;border:1px solid #e1e6ef;border-radius:8px;background:#fff;line-height:1.65;white-space:normal;color:#263449}
-.docout p{margin:0 0 10px}.tablewrap{max-height:70vh;overflow:auto;border:1px solid #e1e6ef;border-radius:8px}
-.tablewrap table{border-collapse:collapse;width:max-content;min-width:100%;font-size:13px}.tablewrap td,.tablewrap th{border:1px solid #dce2eb;padding:7px 10px;text-align:left;white-space:pre-wrap;max-width:380px}.tablewrap th{background:#edf2fa;position:sticky;top:0}.tab{white-space:nowrap}
+.docout[contenteditable="true"]{outline:none}
+.docout[contenteditable="true"]:focus{border-color:#6597f5;box-shadow:0 0 0 2px rgba(37,99,235,.08)}
+.tablewrap td[contenteditable="true"]{background:#fff;cursor:text}
+.tablewrap td[contenteditable="true"]:focus{outline:2px solid #6597f5;outline-offset:-2px}
 </style>
+
 <script src="https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.8.0/mammoth.browser.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
-
 <script>
-const $=id=>document.getElementById(id);let active='json',jsonName='data.json',htmlName='index.html',txtName='data.txt';
-function status(t,c=''){$('status').textContent=t;$('status').className='status '+c}
-function download(content,name,type){const u=URL.createObjectURL(new Blob([content],{type}));const a=document.createElement('a');a.href=u;a.download=name;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(u),1000)}
-function switchTab(which){active=which;const names=['json','html','word','excel','ppt','txt'];names.forEach(n=>{$(n+'Section').classList.toggle('hidden',n!==which);$(n+'Tab').classList.toggle('active',n===which)});$('fileName').textContent=({json:jsonName,html:htmlName,word:wordFile,excel:excelFile,ppt:pptFile})[which]||'Chưa mở file';status('Đang ở tab '+({json:'JSON',html:'HTML',word:'Word',excel:'Excel',ppt:'PowerPoint',txt:'TXT'})[which]+'.')}
-$('jsonTab').onclick=()=>switchTab('json');$('htmlTab').onclick=()=>switchTab('html');
-const je=$('jsonEditor'),he=$('htmlEditor');
-function jsonInfo(){$('jsonName').textContent=jsonName;$('jsonSize').textContent=(new Blob([je.value]).size/1024).toFixed(2)+' KB';$('jsonLines').textContent=je.value?je.value.split('\n').length:0}
-function validate(show=true){try{JSON.parse(je.value);$('jsonState').textContent='Hợp lệ';if(show)status('JSON hợp lệ. Bạn có thể lưu file.','ok');return true}catch(e){$('jsonState').textContent='Có lỗi';if(show)status('Lỗi JSON: '+e.message,'err');return false}}
-$('jsonInput').onchange=async e=>{let f=e.target.files[0];if(!f)return;try{je.value=await f.text();jsonName=f.name;$('fileName').textContent=jsonName;jsonInfo();validate(false);status('Đã mở '+f.name,'ok')}catch(err){status('Không đọc được file: '+err.message,'err')}e.target.value=''};
-$('formatBtn').onclick=()=>{try{je.value=JSON.stringify(JSON.parse(je.value),null,2);jsonInfo();validate(false);status('Đã định dạng JSON.','ok')}catch(e){validate()}};
-$('minifyBtn').onclick=()=>{try{je.value=JSON.stringify(JSON.parse(je.value));jsonInfo();validate(false);status('Đã thu gọn JSON.','ok')}catch(e){validate()}};
-$('validateBtn').onclick=()=>validate();
-$('saveJsonBtn').onclick=()=>{if(validate())download(je.value,jsonName.endsWith('.json')?jsonName:jsonName+'.json','application/json;charset=utf-8')};
-je.oninput=()=>{jsonInfo();$('jsonState').textContent='Chưa kiểm tra'};
-$('htmlInput').onchange=async e=>{let f=e.target.files[0];if(!f)return;try{he.value=await f.text();htmlName=f.name;$('fileName').textContent=htmlName;preview();status('Đã mở '+f.name+'. Bạn có thể chỉnh sửa HTML.','ok')}catch(err){status('Không đọc được file: '+err.message,'err')}e.target.value=''};
-function preview(){$('preview').srcdoc=he.value;status('Đã cập nhật bản xem trước.','ok')}
-$('previewBtn').onclick=preview;
-function formatHtml(source){
-  // Basic readable formatter for common HTML markup; preserves text content and script/style bodies.
-  const tokens=source.replace(/>\s*</g,'>\n<').split(/\n/),out=[];let depth=0;
-  const voidTags=new Set(['area','base','br','col','embed','hr','img','input','link','meta','param','source','track','wbr']);
-  const rawTags=new Set(['script','style','pre','textarea']);
-  let raw=null,rawBuffer=[];
-  for(const original of tokens){
-    const line=original.trim();if(!line)continue;
-    if(raw){
-      if(new RegExp('</'+raw+'\\s*>','i').test(line)){out.push('  '.repeat(depth)+rawBuffer.join('\n').trim());rawBuffer=[];raw=null;depth=Math.max(0,depth-1);}
-      else rawBuffer.push(line);
-      if(!raw) { const closeAt=line.toLowerCase().lastIndexOf('</'+raw+'>'); if(closeAt>=0){const tail=line.slice(closeAt+('</'+raw+'>').length).trim();if(tail)out.push('  '.repeat(depth)+tail);} }
-      continue;
-    }
-    const closing=/^<\s*\//.test(line),opening=/^<\s*[a-zA-Z][^>]*>$/.test(line),tag=(line.match(/^<\s*\/?\s*([\w:-]+)/)||[])[1]?.toLowerCase();
-    if(closing)depth=Math.max(0,depth-1);
-    out.push('  '.repeat(depth)+line);
-    if(opening&&!closing&&tag&&!voidTags.has(tag)&&! /\/\s*>$/.test(line)){depth++;if(rawTags.has(tag))raw=tag;}
+const $=id=>document.getElementById(id);
+let active='json', jsonName='data.json', htmlName='index.html', txtName='data.txt';
+let wordFile='Chưa mở file', excelFile='Chưa mở file', pptFile='Chưa mở file';
+let sheets={}, workbook=null, slides=[], slideIndex=0;
+
+function status(t,c=''){
+  $('status').textContent=t;
+  $('status').className='status '+c;
+}
+function download(content,name,type){
+  const u=URL.createObjectURL(new Blob([content],{type}));
+  const a=document.createElement('a');
+  a.href=u; a.download=name; document.body.appendChild(a); a.click(); a.remove();
+  setTimeout(()=>URL.revokeObjectURL(u),1000);
+}
+function switchTab(which){
+  active=which;
+  const names=['json','html','word','excel','ppt','txt'];
+  names.forEach(n=>{
+    $(n+'Section').classList.toggle('hidden',n!==which);
+    $(n+'Tab').classList.toggle('active',n===which);
+  });
+  const namesMap={json:'JSON',html:'HTML',word:'Word',excel:'Excel',ppt:'PowerPoint',txt:'TXT'};
+  const files={json:jsonName,html:htmlName,word:wordFile,excel:excelFile,ppt:pptFile,txt:txtName};
+  $('fileName').textContent=files[which]||'Chưa mở file';
+  status('Đang ở tab '+namesMap[which]+'.');
+}
+['json','html','word','excel','ppt','txt'].forEach(n=>{
+  $(n+'Tab').onclick=()=>switchTab(n);
+});
+
+const je=$('jsonEditor'), he=$('htmlEditor'), te=$('txtEditor');
+
+function jsonInfo(){
+  $('jsonName').textContent=jsonName;
+  $('jsonSize').textContent=(new Blob([je.value]).size/1024).toFixed(2)+' KB';
+  $('jsonLines').textContent=je.value?je.value.split('\n').length:0;
+}
+function validate(show=true){
+  try{
+    JSON.parse(je.value);
+    $('jsonState').textContent='Hợp lệ';
+    if(show) status('JSON hợp lệ. Bạn có thể lưu file.','ok');
+    return true;
+  }catch(e){
+    $('jsonState').textContent='Có lỗi';
+    if(show) status('Lỗi JSON: '+e.message,'err');
+    return false;
   }
-  if(rawBuffer.length)out.push('  '.repeat(depth)+rawBuffer.join('\n').trim());
-  return out.join('\n');
 }
+$('jsonInput').onchange=async e=>{
+  const f=e.target.files[0]; if(!f)return;
+  try{
+    je.value=await f.text(); jsonName=f.name; $('fileName').textContent=jsonName;
+    jsonInfo(); validate(false); status('Đã mở '+f.name,'ok');
+  }catch(err){status('Không đọc được file: '+err.message,'err')}
+  e.target.value='';
+};
+$('formatBtn').onclick=()=>{
+  try{je.value=JSON.stringify(JSON.parse(je.value),null,2);jsonInfo();validate(false);status('Đã định dạng JSON.','ok')}
+  catch(e){validate()}
+};
+$('minifyBtn').onclick=()=>{
+  try{je.value=JSON.stringify(JSON.parse(je.value));jsonInfo();validate(false);status('Đã thu gọn JSON.','ok')}
+  catch(e){validate()}
+};
+$('validateBtn').onclick=()=>validate();
+$('saveJsonBtn').onclick=()=>{
+  if(validate()) download(je.value,jsonName.toLowerCase().endsWith('.json')?jsonName:jsonName+'.json','application/json;charset=utf-8');
+};
+je.oninput=()=>{jsonInfo();$('jsonState').textContent='Chưa kiểm tra'};
+
+$('htmlInput').onchange=async e=>{
+  const f=e.target.files[0];if(!f)return;
+  try{
+    he.value=await f.text();htmlName=f.name;$('fileName').textContent=htmlName;
+    preview(false);status('Đã mở '+f.name+'. Bạn có thể chỉnh sửa HTML.','ok');
+  }catch(err){status('Không đọc được file: '+err.message,'err')}
+  e.target.value='';
+};
+function preview(showStatus=true){
+  $('preview').srcdoc=he.value;
+  if(showStatus)status('Đã cập nhật bản xem trước.','ok');
+}
+$('previewBtn').onclick=()=>preview();
+
+function formatHtml(source){
+  // Token-based formatter that avoids changing the contents of script/style/pre/textarea.
+  const protectedParts=[];
+  const protectedSource=source.replace(
+    /<(script|style|pre|textarea)\b[^>]*>[\s\S]*?<\/\1\s*>/gi,
+    m=>{const id=protectedParts.push(m)-1;return `@@PROTECTED_${id}@@`;}
+  );
+  const tokens=protectedSource.replace(/>\s*</g,'>\n<').split('\n');
+  const voidTags=new Set(['area','base','br','col','embed','hr','img','input','link','meta','param','source','track','wbr']);
+  let depth=0, out=[];
+  for(const raw of tokens){
+    const line=raw.trim(); if(!line)continue;
+    const closing=/^<\s*\//.test(line);
+    const opening=/^<\s*[A-Za-z][^>]*>$/.test(line);
+    const tag=(line.match(/^<\s*\/?\s*([A-Za-z][\w:-]*)/)||[])[1]?.toLowerCase();
+    if(closing) depth=Math.max(0,depth-1);
+    out.push('  '.repeat(depth)+line);
+    if(opening && !closing && tag && !voidTags.has(tag) && !/\/\s*>$/.test(line)) depth++;
+  }
+  let result=out.join('\n');
+  result=result.replace(/@@PROTECTED_(\d+)@@/g,(_,i)=>{
+    const block=protectedParts[Number(i)];
+    const m=block.match(/^<([A-Za-z][\w:-]*)(\s[^>]*)?>/);
+    if(!m)return block;
+    const tag=m[1].toLowerCase();
+    const open=m[0];
+    const close=`</${tag}>`;
+    const inner=block.slice(open.length,block.length-close.length);
+    return open+'\n'+inner+'\n'+close;
+  });
+  return result;
+}
+
 function minifyHtml(source){
-  // Conservative whitespace compaction: removes inter-tag whitespace and collapses repeated whitespace outside pre/script/style/textarea.
-  return source.replace(/<!--[\s\S]*?-->/g,'').replace(/>\s+</g,'><').replace(/[\t\r\n ]+/g,' ').trim();
+  // Protect pre/textarea/script/style so their content is not altered.
+  const protectedParts=[];
+  let result=source.replace(
+    /<(script|style|pre|textarea)\b[^>]*>[\s\S]*?<\/\1\s*>/gi,
+    m=>{const id=protectedParts.push(m)-1;return `@@PROTECTED_${id}@@`;}
+  );
+  result=result.replace(/<!--[\s\S]*?-->/g,'')
+               .replace(/>\s+</g,'><')
+               .replace(/[ \t\r\n]+/g,' ')
+               .trim();
+  return result.replace(/@@PROTECTED_(\d+)@@/g,(_,i)=>protectedParts[Number(i)]);
 }
-$('formatHtmlBtn').onclick=()=>{if(!he.value.trim()){status('Chưa có nội dung HTML.','err');return}he.value=formatHtml(he.value);status('Đã định dạng HTML cơ bản. Hãy kiểm tra lại mã và bản xem trước.','ok')};
-$('minifyHtmlBtn').onclick=()=>{if(!he.value.trim()){status('Chưa có nội dung HTML.','err');return}he.value=minifyHtml(he.value);status('Đã thu gọn HTML. Lưu ý: khoảng trắng trong một số nội dung có thể thay đổi.','ok')};
+$('formatHtmlBtn').onclick=()=>{
+  if(!he.value.trim()){status('Chưa có nội dung HTML.','err');return}
+  he.value=formatHtml(he.value);
+  status('Đã định dạng HTML an toàn hơn. Hãy kiểm tra lại mã và bản xem trước.','ok');
+};
+$('minifyHtmlBtn').onclick=()=>{
+  if(!he.value.trim()){status('Chưa có nội dung HTML.','err');return}
+  he.value=minifyHtml(he.value);
+  status('Đã thu gọn HTML mà không thay đổi nội dung vùng script/style/pre/textarea.','ok');
+};
 he.addEventListener('input',()=>status('HTML đã thay đổi. Nhấn “Cập nhật xem trước” để xem kết quả.'));
 $('saveHtmlBtn').onclick=()=>download(he.value,htmlName.match(/\.html?$/i)?htmlName:htmlName+'.html','text/html;charset=utf-8');
-function findIn(el,q){if(!q){status('Đã xóa từ khóa tìm kiếm.');return}let i=el.value.toLowerCase().indexOf(q.toLowerCase());if(i<0){status('Không tìm thấy: '+q);return}el.focus();el.setSelectionRange(i,i+q.length);status('Tìm thấy tại dòng '+el.value.slice(0,i).split('\n').length+'.','ok')}
-$('jsonSearch').oninput=e=>findIn(je,e.target.value);$('htmlSearch').oninput=e=>findIn(he,e.target.value);
 
-let wordFile='Chưa mở file',excelFile='Chưa mở file',pptFile='Chưa mở file',sheets={},slides=[],slideIndex=0;
-$('wordTab').onclick=()=>switchTab('word');$('excelTab').onclick=()=>switchTab('excel');$('pptTab').onclick=()=>switchTab('ppt');$('txtTab').onclick=()=>switchTab('txt');
-const te=$('txtEditor');
-$('txtInput').onchange=async e=>{const f=e.target.files[0];if(!f)return;try{te.value=await f.text();txtName=f.name;$('fileName').textContent=txtName;status('Đã mở '+f.name+'. Bạn có thể chỉnh sửa văn bản.','ok')}catch(err){status('Không đọc được file: '+err.message,'err')}e.target.value=''};
+function findIn(el,q){
+  if(!q){status('Đã xóa từ khóa tìm kiếm.');return}
+  const i=el.value.toLocaleLowerCase().indexOf(q.toLocaleLowerCase());
+  if(i<0){status('Không tìm thấy: '+q);return}
+  el.focus();el.setSelectionRange(i,i+q.length);
+  status('Tìm thấy tại dòng '+(el.value.slice(0,i).split('\n').length)+'.','ok');
+}
+$('jsonSearch').oninput=e=>findIn(je,e.target.value);
+$('htmlSearch').oninput=e=>findIn(he,e.target.value);
+$('txtSearch').oninput=e=>findIn(te,e.target.value);
+
+// TXT
+$('txtInput').onchange=async e=>{
+  const f=e.target.files[0];if(!f)return;
+  try{te.value=await f.text();txtName=f.name;$('fileName').textContent=txtName;status('Đã mở '+f.name+'. Bạn có thể chỉnh sửa văn bản.','ok')}
+  catch(err){status('Không đọc được file: '+err.message,'err')}
+  e.target.value='';
+};
 $('saveTxtBtn').onclick=()=>download(te.value,txtName.toLowerCase().endsWith('.txt')?txtName:txtName+'.txt','text/plain;charset=utf-8');
 $('txtClear').onclick=()=>{te.value='';txtName='data.txt';$('fileName').textContent='Chưa mở file';status('Đã xóa nội dung TXT.')};
-$('txtSearch').oninput=e=>findIn(te,e.target.value);
-$('wordInput').onchange=async e=>{const f=e.target.files[0];if(!f)return;wordFile=f.name;$('fileName').textContent=f.name;$('wordOutput').textContent='Đang đọc file...';try{if(!window.mammoth)throw Error('Không tải được bộ đọc Word. Hãy kết nối Internet và tải lại trang.');const result=await mammoth.convertToHtml({arrayBuffer:await f.arrayBuffer()});$('wordOutput').innerHTML=result.value||'<i>Không tìm thấy văn bản.</i>';status('Đã đọc xong file Word.','ok')}catch(err){$('wordOutput').textContent='Không đọc được file: '+err.message;status('Lỗi đọc Word.','err')}e.target.value=''};
-$('wordClear').onclick=()=>{$('wordOutput').textContent='Chọn file .docx để đọc nội dung.';wordFile='Chưa mở file';$('fileName').textContent=wordFile};
-$('excelInput').onchange=async e=>{const f=e.target.files[0];if(!f)return;excelFile=f.name;$('fileName').textContent=f.name;$('excelOutput').textContent='Đang đọc file...';try{if(!window.XLSX)throw Error('Không tải được bộ đọc Excel. Hãy kết nối Internet và tải lại trang.');const wb=XLSX.read(await f.arrayBuffer(),{type:'array'});sheets={};wb.SheetNames.forEach(n=>sheets[n]=XLSX.utils.sheet_to_json(wb.Sheets[n],{header:1,defval:''}));const sel=$('sheetSelect');sel.innerHTML='';wb.SheetNames.forEach(n=>{const o=document.createElement('option');o.value=n;o.textContent=n;sel.appendChild(o)});sel.disabled=false;renderSheet();status('Đã đọc xong file Excel.','ok')}catch(err){$('excelOutput').textContent='Không đọc được file: '+err.message;status('Lỗi đọc Excel.','err')}e.target.value=''};
-function renderSheet(){const name=$('sheetSelect').value,rows=sheets[name]||[];const wrap=$('excelOutput');wrap.innerHTML='';if(!rows.length){wrap.textContent='Trang tính không có dữ liệu.';return}const table=document.createElement('table'),tbody=document.createElement('tbody');rows.forEach((r,i)=>{const tr=document.createElement('tr');r.forEach(v=>{const cell=document.createElement(i===0?'th':'td');cell.textContent=v==null?'':String(v);tr.appendChild(cell)});tbody.appendChild(tr)});table.appendChild(tbody);wrap.appendChild(table)}
-$('sheetSelect').onchange=renderSheet;$('excelClear').onclick=()=>{$('excelOutput').textContent='Chọn file Excel để đọc dữ liệu.';$('sheetSelect').innerHTML='<option>Chưa có dữ liệu</option>';$('sheetSelect').disabled=true;sheets={};excelFile='Chưa mở file';$('fileName').textContent=excelFile};
-$('pptInput').onchange=async e=>{const f=e.target.files[0];if(!f)return;pptFile=f.name;$('fileName').textContent=f.name;$('pptOutput').textContent='Đang đọc file...';try{if(!window.JSZip)throw Error('Không tải được bộ đọc PowerPoint. Hãy kết nối Internet và tải lại trang.');const zip=await JSZip.loadAsync(await f.arrayBuffer());const names=Object.keys(zip.files).filter(n=>/^ppt\/slides\/slide\d+\.xml$/.test(n)).sort((a,b)=>Number(a.match(/slide(\d+)/)[1])-Number(b.match(/slide(\d+)/)[1]));slides=[];for(const n of names){const xml=await zip.files[n].async('text'),doc=new DOMParser().parseFromString(xml,'application/xml');slides.push(Array.from(doc.getElementsByTagNameNS('*','t')).map(x=>x.textContent).join(' '))}slideIndex=0;renderSlide();status('Đã đọc xong văn bản PowerPoint.','ok')}catch(err){$('pptOutput').textContent='Không đọc được file: '+err.message;status('Lỗi đọc PowerPoint.','err')}e.target.value=''};
-function renderSlide(){if(!slides.length){$('slideTitle').textContent='Nội dung trang chiếu';$('pptOutput').textContent='Không tìm thấy trang chiếu có văn bản.';$('slideCount').textContent='0 trang';$('prevSlide').disabled=$('nextSlide').disabled=true;return}$('slideTitle').textContent='Trang chiếu '+(slideIndex+1);$('pptOutput').textContent=slides[slideIndex]||'(Trang chiếu không có văn bản)';$('slideCount').textContent=(slideIndex+1)+' / '+slides.length;$('prevSlide').disabled=slideIndex===0;$('nextSlide').disabled=slideIndex===slides.length-1}
-$('prevSlide').onclick=()=>{if(slideIndex>0){slideIndex--;renderSlide()}};$('nextSlide').onclick=()=>{if(slideIndex<slides.length-1){slideIndex++;renderSlide()}};
-$('pptClear').onclick=()=>{slides=[];slideIndex=0;renderSlide();pptFile='Chưa mở file';$('fileName').textContent=pptFile};
-[je,he,te].forEach(el=>el.addEventListener('keydown',e=>{if(e.key==='Tab'){e.preventDefault();el.setRangeText('  ',el.selectionStart,el.selectionEnd,'end');el.dispatchEvent(new Event('input'))}if((e.ctrlKey||e.metaKey)&&e.key.toLowerCase()==='s'){e.preventDefault();$(active==='json'?'saveJsonBtn':active==='html'?'saveHtmlBtn':'saveTxtBtn').click()}}));jsonInfo();
-</script></body></html>
+
+// WORD
+$('wordInput').onchange=async e=>{
+  const f=e.target.files[0];if(!f)return;
+  wordFile=f.name;$('fileName').textContent=f.name;$('wordOutput').textContent='Đang đọc file...';
+  try{
+    if(!window.mammoth)throw Error('Không tải được bộ đọc Word. Hãy kết nối Internet và tải lại trang.');
+    const result=await mammoth.convertToHtml({arrayBuffer:await f.arrayBuffer()});
+    $('wordOutput').innerHTML=result.value||'<i>Không tìm thấy văn bản.</i>';
+    status('Đã đọc xong file Word. Nội dung có thể chỉnh sửa trực tiếp.','ok');
+  }catch(err){$('wordOutput').textContent='Không đọc được file: '+err.message;status('Lỗi đọc Word.','err')}
+  e.target.value='';
+};
+$('saveWordBtn').onclick=()=>{
+  const body=$('wordOutput').innerHTML;
+  if(!body.trim()){status('Không có nội dung Word để lưu.','err');return}
+  const html='<!doctype html><html lang="vi"><head><meta charset="UTF-8"><title>'+escapeHtml(wordFile)+'</title></head><body>'+body+'</body></html>';
+  download(html,(wordFile.replace(/\.docx$/i,'')||'document')+'.html','text/html;charset=utf-8');
+  status('Đã lưu nội dung Word thành HTML.','ok');
+};
+$('wordClear').onclick=()=>{
+  $('wordOutput').textContent='Chọn file .docx để đọc nội dung.';
+  wordFile='Chưa mở file';$('fileName').textContent=wordFile;
+};
+
+// EXCEL
+$('excelInput').onchange=async e=>{
+  const f=e.target.files[0];if(!f)return;
+  excelFile=f.name;$('fileName').textContent=f.name;$('excelOutput').textContent='Đang đọc file...';
+  try{
+    if(!window.XLSX)throw Error('Không tải được bộ đọc Excel. Hãy kết nối Internet và tải lại trang.');
+    workbook=XLSX.read(await f.arrayBuffer(),{type:'array',cellStyles:true});
+    sheets={};
+    workbook.SheetNames.forEach(n=>sheets[n]=XLSX.utils.sheet_to_json(workbook.Sheets[n],{header:1,defval:''}));
+    const sel=$('sheetSelect');sel.innerHTML='';
+    workbook.SheetNames.forEach(n=>{const o=document.createElement('option');o.value=n;o.textContent=n;sel.appendChild(o)});
+    sel.disabled=false;renderSheet();status('Đã đọc xong file Excel. Bạn có thể sửa trực tiếp các ô.','ok');
+  }catch(err){$('excelOutput').textContent='Không đọc được file: '+err.message;status('Lỗi đọc Excel.','err')}
+  e.target.value='';
+};
+function renderSheet(){
+  const name=$('sheetSelect').value,rows=sheets[name]||[],wrap=$('excelOutput');
+  wrap.innerHTML='';
+  if(!rows.length){wrap.textContent='Trang tính không có dữ liệu.';return}
+  const table=document.createElement('table');
+  table.dataset.sheet=name;
+  const tbody=document.createElement('tbody');
+  rows.forEach((r,i)=>{
+    const tr=document.createElement('tr');
+    r.forEach((v,j)=>{
+      const cell=document.createElement(i===0?'th':'td');
+      cell.textContent=v==null?'':String(v);
+      if(i>0)cell.contentEditable='true';
+      cell.dataset.row=i;cell.dataset.col=j;
+      tr.appendChild(cell);
+    });
+    tbody.appendChild(tr);
+  });
+  table.appendChild(tbody);wrap.appendChild(table);
+}
+$('sheetSelect').onchange=renderSheet;
+$('saveExcelBtn').onclick=()=>{
+  if(!workbook){status('Chưa mở file Excel.','err');return}
+  const table=$('excelOutput').querySelector('table');
+  if(!table){status('Không có dữ liệu để lưu.','err');return}
+  const rows=Array.from(table.rows).map(tr=>Array.from(tr.cells).map(c=>c.textContent));
+  const ws=XLSX.utils.aoa_to_sheet(rows);
+  const name=$('sheetSelect').value;
+  workbook.Sheets[name]=ws;
+  const out=XLSX.write(workbook,{bookType:'xlsx',type:'array'});
+  download(out,(excelFile.replace(/\.(xlsx|xls|xlsm|csv)$/i,'')||'data')+'.xlsx','application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+  status('Đã lưu Excel thành file .xlsx.','ok');
+};
+$('excelClear').onclick=()=>{
+  $('excelOutput').textContent='Chọn file Excel để đọc dữ liệu.';
+  $('sheetSelect').innerHTML='<option>Chưa có dữ liệu</option>';
+  $('sheetSelect').disabled=true;sheets={};workbook=null;
+  excelFile='Chưa mở file';$('fileName').textContent=excelFile;
+};
+
+// POWERPOINT: read text from PPTX and allow editing/export as TXT.
+// Rebuilding a true PPTX with original layout is outside what this lightweight browser editor currently does.
+$('pptInput').onchange=async e=>{
+  const f=e.target.files[0];if(!f)return;
+  pptFile=f.name;$('fileName').textContent=f.name;$('pptOutput').textContent='Đang đọc file...';
+  try{
+    if(!window.JSZip)throw Error('Không tải được bộ đọc PowerPoint. Hãy kết nối Internet và tải lại trang.');
+    const zip=await JSZip.loadAsync(await f.arrayBuffer());
+    const names=Object.keys(zip.files).filter(n=>/^ppt\/slides\/slide\d+\.xml$/.test(n))
+      .sort((a,b)=>Number(a.match(/slide(\d+)/)[1])-Number(b.match(/slide(\d+)/)[1]));
+    slides=[];
+    for(const n of names){
+      const xml=await zip.files[n].async('text');
+      const doc=new DOMParser().parseFromString(xml,'application/xml');
+      slides.push(Array.from(doc.getElementsByTagNameNS('*','t')).map(x=>x.textContent).join(' '));
+    }
+    slideIndex=0;renderSlide();status('Đã đọc xong văn bản PowerPoint. Có thể sửa phần văn bản của slide.','ok');
+  }catch(err){$('pptOutput').textContent='Không đọc được file: '+err.message;status('Lỗi đọc PowerPoint.','err')}
+  e.target.value='';
+};
+function renderSlide(){
+  if(!slides.length){
+    $('slideTitle').textContent='Nội dung trang chiếu';
+    $('pptOutput').textContent='Không tìm thấy trang chiếu có văn bản.';
+    $('slideCount').textContent='0 trang';
+    $('prevSlide').disabled=$('nextSlide').disabled=true;return;
+  }
+  $('slideTitle').textContent='Trang chiếu '+(slideIndex+1);
+  $('pptOutput').textContent=slides[slideIndex]||'(Trang chiếu không có văn bản)';
+  $('slideCount').textContent=(slideIndex+1)+' / '+slides.length;
+  $('prevSlide').disabled=slideIndex===0;
+  $('nextSlide').disabled=slideIndex===slides.length-1;
+}
+$('prevSlide').onclick=()=>{if(slideIndex>0){slides[slideIndex]=$('pptOutput').textContent;slideIndex--;renderSlide()}};
+$('nextSlide').onclick=()=>{if(slideIndex<slides.length-1){slides[slideIndex]=$('pptOutput').textContent;slideIndex++;renderSlide()}};
+$('savePptBtn').onclick=()=>{
+  if(!slides.length){status('Chưa có nội dung PowerPoint.','err');return}
+  slides[slideIndex]=$('pptOutput').textContent;
+  const text=slides.map((s,i)=>'--- Slide '+(i+1)+' ---\n'+s).join('\n\n');
+  download(text,(pptFile.replace(/\.pptx$/i,'')||'presentation')+'.txt','text/plain;charset=utf-8');
+  status('Đã lưu toàn bộ phần văn bản PowerPoint thành TXT.','ok');
+};
+$('pptClear').onclick=()=>{
+  slides=[];slideIndex=0;renderSlide();pptFile='Chưa mở file';$('fileName').textContent=pptFile;
+};
+
+// Safe HTML escaping for generated document title.
+function escapeHtml(s){
+  return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+}
+
+// Tab insertion and Ctrl+S.
+[je,he,te].forEach(el=>el.addEventListener('keydown',e=>{
+  if(e.key==='Tab'){
+    e.preventDefault();
+    el.setRangeText('  ',el.selectionStart,el.selectionEnd,'end');
+    el.dispatchEvent(new Event('input'));
+  }
+  if((e.ctrlKey||e.metaKey)&&e.key.toLowerCase()==='s'){
+    e.preventDefault();
+    const actions={
+      json:()=>$('saveJsonBtn').click(),
+      html:()=>$('saveHtmlBtn').click(),
+      txt:()=>$('saveTxtBtn').click(),
+      word:()=>$('saveWordBtn').click(),
+      excel:()=>$('saveExcelBtn').click(),
+      ppt:()=>$('savePptBtn').click()
+    };
+    if(actions[active])actions[active]();
+  }
+}));
+jsonInfo();
+</script>
+
+</body></html>
